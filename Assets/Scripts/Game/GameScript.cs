@@ -546,7 +546,7 @@ public class GameScript : MonoBehaviour {
 
     public void Deselect()
     {
-        if(selectedTowerInShop != -1)
+        if (selectedTowerInShop != -1)
         {
             shopButtons[selectedTowerInShop].SetBool("Active", false);
         }
@@ -888,8 +888,16 @@ public class GameScript : MonoBehaviour {
         SpawnLocation spawnLocation = (SpawnLocation)(waveLevel % 4);
         int waveDifficulty = Mathf.CeilToInt(waveLevel / MAX_WAVES);
         int enemyAmount = 10 + (waveDifficulty);
+        if (type == EnemyType.SWARM)
+        {
+            enemyAmount *= 2;
+            var secondSpawnLocation = (SpawnLocation)((waveLevel + 2) % 4);
+            Wave wave2 = new Wave(type, secondSpawnLocation, enemyAmount, waveDifficulty);
+            activeWaves.Add(wave2);
+        }
         Wave wave = new Wave(type, spawnLocation, enemyAmount, waveDifficulty);
         activeWaves.Add(wave);
+        
         if(sentWaves > 0)
         {
             sentWaves -= 1;
