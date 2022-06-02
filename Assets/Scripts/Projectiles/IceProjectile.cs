@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class IceProjectile : Projectile
 {
-    
+
     public static string projectilePath = "Projectiles/IceProjectile";
     public IceProjectile(GameScript main, GameObject projectile)
     {

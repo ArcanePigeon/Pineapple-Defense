@@ -40,7 +40,8 @@ public struct TowerInfo
         this.towerStats = towerStats;
     }
 }
-public abstract class Tower : TickableObject {
+public abstract class Tower : TickableObject
+{
     public GameObject tower;
     public int level;
     public ProjectileDamageReturn projectileDamageReturn;
@@ -84,13 +85,9 @@ public abstract class Tower : TickableObject {
     {
         targets.Add(enemy);
     }
-    public virtual void Sell()
-    {
-        main.RemoveTowerFromList(this);
-        Destroy();
-    }
     public virtual void Destroy()
     {
+        main.RemoveTowerFromList(this);
         main.RemoveGameObject(tower);
     }
     public TowerStats GetTowerStats()

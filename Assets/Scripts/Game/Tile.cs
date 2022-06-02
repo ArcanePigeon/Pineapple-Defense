@@ -3,14 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
-public class Tile : MonoBehaviour {
+public class Tile : MonoBehaviour
+{
     [SerializeField] public SpriteRenderer spriteRenderer;
     [SerializeField] private SpriteRenderer hightlightSpriteRenderer;
-    [SerializeField] private Color baseColor, offsetColor, nonHoverColor, hoverColor, PlaceableColor, NonPlaceableColor;
-    [SerializeField] public GameObject DebugArrow;
-    [SerializeField] public TMP_Text G;
-    [SerializeField] public TMP_Text F;
-    [SerializeField] public TMP_Text H;
+    [SerializeField] private Color baseColor, offsetColor, nonHoverColor, hoverColor;
     private bool isOffset;
     public Vector2 pos;
     private GameScript main;
@@ -97,6 +94,15 @@ public class Tile : MonoBehaviour {
         if (Input.GetMouseButtonDown(0))
         {
             main.InteractTile(this);
+        }
+    }
+
+    public void ClearTile()
+    {
+        if (isOccupied && tower != null)
+        {
+            tower.Destroy();
+            isOccupied = false;
         }
     }
 }

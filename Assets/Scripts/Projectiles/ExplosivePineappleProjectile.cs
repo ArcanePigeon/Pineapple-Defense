@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class ExplosivePineappleProjectile : Projectile
 {
-    
+
     public static string projectilePath = "Projectiles/ExplosivePineapple";
     public ExplosivePineappleProjectile(GameScript main, GameObject projectile)
     {
@@ -32,7 +32,7 @@ public class ExplosivePineappleProjectile : Projectile
             main.KillProjectile(this);
             return;
         }
-        projectile.transform.position = Vector2.MoveTowards(projectile.transform.position, projectile.transform.position - projectile.transform.up, 3f  * Time.deltaTime);
+        projectile.transform.position = Vector2.MoveTowards(projectile.transform.position, projectile.transform.position - projectile.transform.up, 3f * Time.deltaTime);
     }
 
     public override void UniqueReset()

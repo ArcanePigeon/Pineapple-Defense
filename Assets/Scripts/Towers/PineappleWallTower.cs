@@ -2,8 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PineappleWallTower : Tower {
-   
+public class PineappleWallTower : Tower
+{
+
     public static string towerPath = "Towers/PineappleWall";
     public PineappleWallTower(GameScript main, GameObject tower, TowerStats[] towerStats)
     {
@@ -16,7 +17,7 @@ public class PineappleWallTower : Tower {
         this.maxUpgrade = true;
 
 
-        
+
         this.type = TowerType.PINEAPPLE_WALL;
     }
     public override void Tick()

@@ -2,7 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Timer {
+public class Timer
+{
     private float timerLength;
     private float currentTime;
     private bool isTimerUp;
@@ -16,7 +17,7 @@ public class Timer {
     }
     public void Tick()
     {
-        if(currentTime <= 0)
+        if (currentTime <= 0)
         {
             isTimerUp = true;
         }

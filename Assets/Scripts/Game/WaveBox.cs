@@ -21,12 +21,12 @@ public class WaveBox : MonoBehaviour
         this.type = type;
         typeText.text = enemyNames[(int)type];
         this.level = level;
-        levelText.text = "" + (level+1);
+        levelText.text = "" + (level + 1);
         background.color = waveBoxColors[(int)type];
     }
     public void Tick()
     {
-        rectTransform.anchoredPosition = Vector2.MoveTowards(rectTransform.anchoredPosition, rectTransform.anchoredPosition + (Vector2.left*50), main.GetWaveBoxSpeed() * Time.deltaTime);
+        rectTransform.anchoredPosition = Vector2.MoveTowards(rectTransform.anchoredPosition, rectTransform.anchoredPosition + (Vector2.left * 50), main.GetWaveBoxSpeed() * Time.deltaTime);
     }
 
     private void OnTriggerEnter2D(Collider2D collision)

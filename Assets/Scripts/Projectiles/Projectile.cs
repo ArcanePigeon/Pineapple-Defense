@@ -6,7 +6,8 @@ public enum ProjectileType
     EXPLOSIVE_PINEAPPLE, ICE, LEAF, SLICE, EXPLOSION, THORN
 }
 
-public abstract class Projectile : TickableObject {
+public abstract class Projectile : TickableObject
+{
     public ProjectileDamageReturn projectileDamageReturn;
     public ProjectileType type;
     public GameObject projectile;

@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
-public class TowerRadius : MonoBehaviour {
+public class TowerRadius : MonoBehaviour
+{
     private Tower tower;
     [SerializeField] public Transform radius;
     [SerializeField] public Transform pivot;

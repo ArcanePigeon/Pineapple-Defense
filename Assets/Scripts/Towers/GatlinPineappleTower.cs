@@ -2,10 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GatlinPineappleTower : Tower {
+public class GatlinPineappleTower : Tower
+{
     private Timer timeBetweenLeavesTimer;
     private int leavesLeft;
-    
+
     public static string towerPath = "Towers/GatlinPineapple";
     public GatlinPineappleTower(GameScript main, GameObject tower, TowerStats[] towerStats)
     {
@@ -24,7 +25,7 @@ public class GatlinPineappleTower : Tower {
         this.type = TowerType.GATLIN_PINEAPPLE;
         this.projectileType = ProjectileType.LEAF;
         this.projectileDamageReturn = new ProjectileDamageReturn(currentStats.damage, false, (float)currentStats.special);
-        towerRadius.levelIndicator.text = "" + (level+1);
+        towerRadius.levelIndicator.text = "" + (level + 1);
         leavesLeft = 0;
         timeBetweenLeavesTimer = new Timer(0.01f, false);
         pivotSpeed = 300f;
@@ -41,10 +42,10 @@ public class GatlinPineappleTower : Tower {
         if (timeBetweenLeavesTimer.Status())
         {
             timeBetweenLeavesTimer.ResetTimer();
-            if(leavesLeft > 0)
+            if (leavesLeft > 0)
             {
                 Quaternion projectileSpawnRotation = towerRadius.pivot.rotation;
-                projectileSpawnRotation = Quaternion.Euler( projectileSpawnRotation.eulerAngles + new Vector3(0,0,(Random.value - 0.5f) * 60f));
+                projectileSpawnRotation = Quaternion.Euler(projectileSpawnRotation.eulerAngles + new Vector3(0, 0, (Random.value - 0.5f) * 60f));
                 main.SpawnProjctileFromPool(projectileType, towerRadius.projectileSpawn.position, projectileSpawnRotation, projectileDamageReturn);
                 leavesLeft -= 1;
             }
@@ -57,11 +58,11 @@ public class GatlinPineappleTower : Tower {
 
     public override void Attack()
     {
-        if(closestEnemy != null)
+        if (closestEnemy != null)
         {
             towerRadius.animator.ResetTrigger("Fire");
             towerRadius.animator.SetTrigger("Fire");
-            leavesLeft += (int) currentStats.special;
+            leavesLeft += (int)currentStats.special;
         }
     }
 }

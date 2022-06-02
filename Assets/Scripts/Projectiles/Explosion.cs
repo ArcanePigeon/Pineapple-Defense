@@ -24,7 +24,7 @@ public class Explosion : Projectile
         {
             return;
         }
-        projectile.transform.localScale = projectileDamageReturn.special * Vector2.one * (1f - projectileLifetime.GetCurrentTime()*4f);
+        projectile.transform.localScale = projectileDamageReturn.special * Vector2.one * (1f - projectileLifetime.GetCurrentTime() * 4f);
         projectileLifetime.Tick();
         if (projectileLifetime.Status())
         {

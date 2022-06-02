@@ -2,9 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PineappleCannonTower : Tower {
-    
-    
+public class PineappleCannonTower : Tower
+{
+
+
     public static string towerPath = "Towers/PineappleCannon";
     public PineappleCannonTower(GameScript main, GameObject tower, TowerStats[] towerStats)
     {
@@ -23,7 +24,7 @@ public class PineappleCannonTower : Tower {
         this.type = TowerType.PINEAPPLE_CANNON;
         this.projectileType = ProjectileType.EXPLOSIVE_PINEAPPLE;
         this.projectileDamageReturn = new ProjectileDamageReturn(currentStats.damage, false, (float)currentStats.special);
-        towerRadius.levelIndicator.text = "" + (level+1);
+        towerRadius.levelIndicator.text = "" + (level + 1);
         pivotSpeed = 300f;
     }
 }

@@ -26,7 +26,8 @@ public struct EnemyStats
         this.scoreDifficuletMultiplier = scoreDifficuletMultiplier;
     }
 }
-public abstract class Enemy : TickableObject {
+public abstract class Enemy : TickableObject
+{
     public int health;
     public int damage;
     public int money;
@@ -126,7 +127,7 @@ public abstract class Enemy : TickableObject {
             targetNode = type == EnemyType.FLYING ? path.Peek() : path.Pop();
             target = targetNode.tile.transform.position;
         }
-        DebugPath();
+        //DebugPath();
         enemy.transform.position = Vector2.MoveTowards(enemy.transform.position, target, currentSpeed * Time.deltaTime);
         if (type != EnemyType.FLYING && Vector3.Distance(enemy.transform.position, target) < 0.05f)
         {
@@ -166,9 +167,9 @@ public abstract class Enemy : TickableObject {
     public void DebugPath()
     {
         Node prev = null;
-        foreach(var node in path)
+        foreach (var node in path)
         {
-            if(prev == null)
+            if (prev == null)
             {
                 prev = node;
                 continue;

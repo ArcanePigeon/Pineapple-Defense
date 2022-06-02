@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public static class AStar {
+public static class AStar
+{
     public static Dictionary<Vector2, Node> nodes;
     public static Dictionary<Node, Stack<Node>> enemyPaths;
     private static GameScript main;
@@ -21,7 +22,7 @@ public static class AStar {
         if (enemyPaths.ContainsKey(node))
         {
             var foundPath = enemyPaths[node];
-            if(foundPath.Count != 0)
+            if (foundPath.Count != 0)
             {
                 return new Stack<Node>(foundPath.Reverse());
             }
@@ -34,10 +35,10 @@ public static class AStar {
         enemyPaths.Add(node, newPath);
         return newPath;
     }
-    public static void CreateNodes(Dictionary<Vector2,Tile> tiles)
+    public static void CreateNodes(Dictionary<Vector2, Tile> tiles)
     {
         nodes = new Dictionary<Vector2, Node>();
-        foreach(KeyValuePair<Vector2,Tile> entry in tiles)
+        foreach (KeyValuePair<Vector2, Tile> entry in tiles)
         {
             nodes.Add(entry.Key, new Node(entry.Value));
         }
@@ -46,7 +47,7 @@ public static class AStar {
     {
 
         var startNode = nodes[start];
-        var goalNode = nodes[new Vector2(7,7)];
+        var goalNode = nodes[new Vector2(7, 7)];
 
         HashSet<Node> openList = new HashSet<Node>();
         HashSet<Node> closedList = new HashSet<Node>();
@@ -79,7 +80,7 @@ public static class AStar {
                         var direction = neighbor.tile.pos - currentNode.tile.pos;
                         var firstPos = new Vector2(neighborPos.x - direction.x, neighborPos.y);
                         var secondPos = new Vector2(neighborPos.x, neighborPos.y - direction.y);
-                        if(nodes.ContainsKey(firstPos) && nodes.ContainsKey(secondPos) && nodes[firstPos].tile.isOccupied && nodes[secondPos].tile.isOccupied)
+                        if (nodes.ContainsKey(firstPos) && nodes.ContainsKey(secondPos) && nodes[firstPos].tile.isOccupied && nodes[secondPos].tile.isOccupied)
                         {
                             continue;
                         }
@@ -93,7 +94,7 @@ public static class AStar {
                             neighbor.CalculateValues(currentNode, gCost, goalNode);
                         }
                     }
-                    else if(!closedList.Contains(neighbor))
+                    else if (!closedList.Contains(neighbor))
                     {
                         openList.Add(neighbor);
                         neighbor.CalculateValues(currentNode, gCost, goalNode);
@@ -107,7 +108,7 @@ public static class AStar {
             {
                 currentNode = openList.OrderBy(n => n.F).First();
             }
-            if(currentNode == goalNode)
+            if (currentNode == goalNode)
             {
                 while (currentNode != startNode)
                 {
@@ -131,8 +132,8 @@ public static class AStar {
             if (node == start)
             {
                 node.tile.spriteRenderer.color = Color.green;
-            } 
-            else if(node == goal)
+            }
+            else if (node == goal)
             {
                 node.tile.spriteRenderer.color = Color.red;
             }
@@ -140,13 +141,13 @@ public static class AStar {
             {
                 node.tile.spriteRenderer.color = Color.cyan;
             }
-            if(node.parent != null)
+            if (node.parent != null)
             {
                 //node.tile.DebugArrow.SetActive(true);
                 //var rotation =  Mathf.Atan2(node.tile.transform.position.y - node.parent.tile.transform.position.y, node.tile.transform.position.x - node.parent.tile.transform.position.x)*Mathf.Rad2Deg + 135;
                 //node.tile.DebugArrow.transform.eulerAngles = new Vector3(0, 0, rotation);
                 //Debug.Log(node.G + " " + node.F + " " + node.H);
-               // node.tile.G.text += node.G;
+                // node.tile.G.text += node.G;
                 //node.tile.F.text += node.F;
                 //node.tile.H.text += node.H;
             }

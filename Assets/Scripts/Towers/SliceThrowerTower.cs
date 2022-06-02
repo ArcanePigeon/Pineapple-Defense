@@ -2,7 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SliceThrowerTower : Tower {
+public class SliceThrowerTower : Tower
+{
 
     public static string towerPath = "Towers/SliceThrower";
     public SliceThrowerTower(GameScript main, GameObject tower, TowerStats[] towerStats)
@@ -22,13 +23,13 @@ public class SliceThrowerTower : Tower {
         this.type = TowerType.SLICE_THROWER;
         this.projectileType = ProjectileType.SLICE;
         this.projectileDamageReturn = new ProjectileDamageReturn(currentStats.damage, false, (float)currentStats.special);
-        towerRadius.levelIndicator.text = "" + (level+1);
+        towerRadius.levelIndicator.text = "" + (level + 1);
         pivotSpeed = 600f;
     }
 
     public override void Attack()
     {
-        if(closestEnemy != null)
+        if (closestEnemy != null)
         {
             //towerRadius.animator.ResetTrigger("Fire");
             //towerRadius.animator.SetTrigger("Fire");

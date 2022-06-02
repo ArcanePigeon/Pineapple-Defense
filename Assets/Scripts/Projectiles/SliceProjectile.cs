@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class SliceProjectile : Projectile
 {
-    
+
     public static string projectilePath = "Projectiles/SliceProjectile";
     private int collisionsUntilBreak;
     public SliceProjectile(GameScript main, GameObject projectile)
@@ -17,7 +17,7 @@ public class SliceProjectile : Projectile
     }
     public override void OnCollision()
     {
-        if(collisionsUntilBreak > 0)
+        if (collisionsUntilBreak > 0)
         {
             collisionsUntilBreak -= 1;
             return;

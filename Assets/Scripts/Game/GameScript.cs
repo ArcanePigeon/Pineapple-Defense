@@ -41,49 +41,75 @@ public enum GameState
 {
     NONE, WIN, LOSE, PLAYING
 }
-public class GameScript : MonoBehaviour {
+public class GameScript : MonoBehaviour
+{
+    // Game state
     private bool isPaused = false;
-    [SerializeField] private Tile tilePrefab;
-    [SerializeField] private GameObject boardBack;
-    [SerializeField] private Transform waveBoxSpawn;
-    [SerializeField] private GameObject upgradeButton;
-    public Dictionary<Vector2,Tile> tiles;
-    private float tileWidth;
-    private const float GRID_SIZE = 16;
-    private float boardWidth;
-    private List<TickableObject> tickableObjects;
-    private List<TickableObject> tickableTowers;
     private int selectedTowerInShop = -1;
     private Tile selectedTile;
-    [SerializeField] private Transform[] enemySpawn = new Transform[4];
-    [SerializeField] private Transform masterPineapple;
+    public bool boardHasChanged = true;
+    private int level = 0;
+    private PlayerStats playerStats;
+    private bool isTowerLevelVisible = true;
+    private GameState gameState;
+
+    // Object Pools
     private int activeProjectiles;
     private Dictionary<GameObject, Projectile> projectilePool;
     private int activeEnemies;
     private Dictionary<Enemy, GameObject> enemyPool;
     private int activeWaveBoxes;
     private Dictionary<GameObject, WaveBox> waveBoxPool;
+
+    // Board / Enemy Spawning
+    [SerializeField] private Tile tilePrefab;
+    [SerializeField] private GameObject boardBack;
+    public Dictionary<Vector2, Tile> tiles;
+    private float tileWidth;
+    private const float GRID_SIZE = 16;
+    private float boardWidth;
+    [SerializeField] private Transform[] enemySpawn = new Transform[4];
+    [SerializeField] private Transform masterPineapple;
+    private Vector2[] startingTile = { new Vector2(7, -2), new Vector2(17, 7), new Vector2(7, 17), new Vector2(-2, 7) };
+    // Tiles outside of the placeable field used for pathing
+    private int[,] hiddenTileLocations = {
+            { 5, -1 }, { 6, -1 }, { 7, -1 }, { 8, -1 }, { 9, -1 }, { 10, -1 }, { 7, -2 },
+            { -1, 5 }, { -1, 6 }, { -1, 7 }, { -1, 8 }, { -1, 9 }, { -1, 10 }, { -2, 7 },
+            { 5, 16 }, { 6, 16 }, { 7, 16 }, { 8, 16 }, { 9, 16 }, { 10, 16 }, { 7, 17 },
+            { 16, 5 }, { 16, 6 }, { 16, 7 }, { 16, 8 }, { 16, 9 }, { 16, 10 }, { 17, 7 }};
+
+    // Pathing
     private Stack<Node> pathUp;
     private Stack<Node> pathDown;
     private Stack<Node> pathLeft;
     private Stack<Node> pathRight;
     private Stack<Node> flyingPath;
-    private Vector2[] startingTile = { new Vector2(7, -2) , new Vector2(17, 7), new Vector2(7, 17), new Vector2(-2, 7) };
-    public bool boardHasChanged = true;
-    private int level = 0;
+
+    // Wave info
+    private const int MAX_WAVES = 35;
+    [SerializeField] private Transform waveBoxSpawn;
     private const float NORMAL_WAVE_SPEED = 0.1f;
     private const float FAST_WAVE_SPEED = 6f;
     private float waveBoxSpeed = 0.1f;
     private string waveBoxPath = "Level/WaveBox";
     private List<Wave> activeWaves;
-    private EnemyType[] waveOrder = { EnemyType.NORMAL, EnemyType.IMMUNE, EnemyType.GROUP, EnemyType.FAST, EnemyType.FLYING, EnemyType.SWARM, EnemyType.BOSS};
+    private EnemyType[] waveOrder = { EnemyType.NORMAL, EnemyType.IMMUNE, EnemyType.GROUP, EnemyType.FAST, EnemyType.FLYING, EnemyType.SWARM, EnemyType.BOSS };
     private Timer waveTimer;
-    private PlayerStats playerStats;
-    private bool isTowerLevelVisible = true;
+    private int sentWaves;
+
+    // Tickable Objects
+    private List<TickableObject> tickableObjects;
+    private List<TickableObject> tickableTowers;
+
+    // Game State Text
     [SerializeField] private TMP_Text healthText;
     [SerializeField] private TMP_Text moneyText;
     [SerializeField] private TMP_Text scoreText;
 
+    // Tower Info
+    [SerializeField] private GameObject towerStatsCard;
+
+    // Tower Info Text
     [SerializeField] private TMP_Text upgradeCostText;
     [SerializeField] private TMP_Text sellAmountText;
 
@@ -103,35 +129,36 @@ public class GameScript : MonoBehaviour {
     [SerializeField] private TMP_Text specialCurrentValue;
     [SerializeField] private TMP_Text specialUpgradeValue;
 
+    // Display when tower has a special effect
+    // Displays special current and upgrade values
     [SerializeField] private GameObject specialStatus;
 
-    [SerializeField] private GameObject towerStatsCard;
-
+    // Display when a tower in the field is selected
     [SerializeField] private GameObject upgradeSellUI;
 
+    // Display when selecting a tower from the shop
     [SerializeField] private GameObject costUI;
     [SerializeField] private TMP_Text towerCostText;
 
+    // Disable when the selected tower is at max upgrade
+    [SerializeField] private GameObject upgradeButton;
+
+    // Shop buttons
     [SerializeField] private Animator[] shopButtons = new Animator[7];
 
+    // Main Menu
     [SerializeField] private GameObject menu;
     [SerializeField] private TMP_Text gameStatusText;
     [SerializeField] private TMP_Text playButtonText;
     [SerializeField] private TMP_Text winningScoreText;
     [SerializeField] private GameObject resumeButton;
-    private GameState gameState;
 
-    private const int MAX_WAVES = 35;
 
-    private int sentWaves;
-    private int[,] hiddenTileLocations = {
-            { 5, -1 }, { 6, -1 }, { 7, -1 }, { 8, -1 }, { 9, -1 }, { 10, -1 }, { 7, -2 },
-            { -1, 5 }, { -1, 6 }, { -1, 7 }, { -1, 8 }, { -1, 9 }, { -1, 10 }, { -2, 7 },
-            { 5, 16 }, { 6, 16 }, { 7, 16 }, { 8, 16 }, { 9, 16 }, { 10, 16 }, { 7, 17 },
-            { 16, 5 }, { 16, 6 }, { 16, 7 }, { 16, 8 }, { 16, 9 }, { 16, 10 }, { 17, 7 }};
-
+    // Tower info for shop
     private Dictionary<TowerType, TowerInfo> towerStatInfo;
 
+    // Tower Stats for each level 1 - 5
+    // Cost, Sell Amount, Speed, Damage, Range, Special, hasSpecial
     private TowerStats[] pineappleCannonTowerStats = {
         new TowerStats(10,    7,   3,     5,   1,     0.5,  true),
         new TowerStats(30,    28,  2.8,   8,   1.2,   0.8,  true),
@@ -189,7 +216,8 @@ public class GameScript : MonoBehaviour {
     };
 
 
-    void Start() {
+    void Start()
+    {
         gameState = GameState.NONE;
         UpdateGameStatus();
         Menu(true);
@@ -212,8 +240,8 @@ public class GameScript : MonoBehaviour {
         waveTimer = new Timer(1f, false);
         sentWaves = 0;
         NewWaveBox();
-        
-        
+
+
     }
 
     public void Menu(bool open)
@@ -232,7 +260,7 @@ public class GameScript : MonoBehaviour {
 
     public void PlayGame()
     {
-        
+
         if (gameState != GameState.NONE)
         {
             RestartGame();
@@ -267,15 +295,15 @@ public class GameScript : MonoBehaviour {
     {
         Deselect();
         playerStats = new PlayerStats(100, 100, 0);
-        foreach(var obj in tickableObjects)
+        foreach (var obj in tickableObjects)
         {
             obj.Disable();
         }
-        foreach(Tower tower in tickableTowers)
+        foreach (KeyValuePair<Vector2, Tile> entry in tiles)
         {
-            tower.Destroy();
+            entry.Value.ClearTile();
         }
-        foreach(var box in waveBoxPool)
+        foreach (var box in waveBoxPool)
         {
             box.Value.Disable();
         }
@@ -289,7 +317,7 @@ public class GameScript : MonoBehaviour {
         GenerateSpawnPaths();
         sentWaves = 0;
         NewWaveBox();
-        UpdateText();
+        UpdateStatsText();
         SetTowerStatsCardInfo();
     }
     public void UpdateGameStatus()
@@ -325,17 +353,17 @@ public class GameScript : MonoBehaviour {
                 break;
             default:
                 break;
-        }    
+        }
     }
     public void AddTowerStatInfo()
     {
-        towerStatInfo.Add(TowerType.PINEAPPLE_CANNON, new TowerInfo("Pineapple Cannon", "Fires explosive pineapples that do lots of damage to enemies in the blast radius. Special: Radius of blast.",pineappleCannonTowerStats[0]));
-        towerStatInfo.Add(TowerType.PINA_COLADA, new TowerInfo("Pina Colada", "Fires ice cubes that slow down enemies. Special: Enemy slow down duration.",pinaColadaTowerStats[0]));
-        towerStatInfo.Add(TowerType.GATLIN_PINEAPPLE, new TowerInfo("Gatlin Pineapple", "Fires bursts of sharp leaves that do damage to enemies. Special: Number of leaves per burst.",gatlinPineappleTowerStats[0]));
-        towerStatInfo.Add(TowerType.ACIDIC_JUICER, new TowerInfo("Acidic Juicer", "Spreads a radius of acidic juce around it dealing lower damage quickly to enemies that pass over it.",acidicJuicerTowerStats[0]));
-        towerStatInfo.Add(TowerType.SLICE_THROWER, new TowerInfo("Slice Thrower", "Lanuches slices of pineapple that can pierce through enemies. Special: Number of enemies the slice can hit before breaking.",sliceThrowerTowerStats[0]));
-        towerStatInfo.Add(TowerType.THORN_TOSSER, new TowerInfo("Thorn Tosser", "Rapidly fires thorns in all directions that can pierece through enemies. Special: Number of enemies the slice can hit before breaking.",thornTosserTowerStats[0]));
-        towerStatInfo.Add(TowerType.PINEAPPLE_WALL, new TowerInfo("Pineapple Wall", "Just a cheap wall.",pineappleWallTowerStats[0]));
+        towerStatInfo.Add(TowerType.PINEAPPLE_CANNON, new TowerInfo("Pineapple Cannon", "Fires explosive pineapples that do lots of damage to enemies in the blast radius. Special: Radius of blast.", pineappleCannonTowerStats[0]));
+        towerStatInfo.Add(TowerType.PINA_COLADA, new TowerInfo("Pina Colada", "Fires ice cubes that slow down enemies. Special: Enemy slow down duration.", pinaColadaTowerStats[0]));
+        towerStatInfo.Add(TowerType.GATLIN_PINEAPPLE, new TowerInfo("Gatlin Pineapple", "Fires bursts of sharp leaves that do damage to enemies. Special: Number of leaves per burst.", gatlinPineappleTowerStats[0]));
+        towerStatInfo.Add(TowerType.ACIDIC_JUICER, new TowerInfo("Acidic Juicer", "Spreads a radius of acidic juce around it dealing lower damage quickly to enemies that pass over it.", acidicJuicerTowerStats[0]));
+        towerStatInfo.Add(TowerType.SLICE_THROWER, new TowerInfo("Slice Thrower", "Lanuches slices of pineapple that can pierce through enemies. Special: Number of enemies the slice can hit before breaking.", sliceThrowerTowerStats[0]));
+        towerStatInfo.Add(TowerType.THORN_TOSSER, new TowerInfo("Thorn Tosser", "Rapidly fires thorns in all directions that can pierece through enemies. Special: Number of enemies the slice can hit before breaking.", thornTosserTowerStats[0]));
+        towerStatInfo.Add(TowerType.PINEAPPLE_WALL, new TowerInfo("Pineapple Wall", "Just a cheap wall.", pineappleWallTowerStats[0]));
     }
     public float GetWaveBoxSpeed()
     {
@@ -348,20 +376,28 @@ public class GameScript : MonoBehaviour {
         waveBoxSpeed = FAST_WAVE_SPEED;
     }
 
-    private void CreateGrid() {
+    private Tile CreateTile(int i, int j)
+    {
         var x = boardBack.transform.position.x - (boardWidth / 2f) + (tileWidth / 2f);
         var y = boardBack.transform.position.y + (boardWidth / 2f) - (tileWidth / 2f);
+        var pos = new Vector2(i, j);
+        var tile = Instantiate(tilePrefab, new Vector3(x + (tileWidth * i), y - (tileWidth * j)), Quaternion.identity);
+        var isOffset = (i % 2 == 0 && j % 2 != 0) || (i % 2 != 0 && j % 2 == 0);
+        tile.Init(this, isOffset, boardBack.transform, pos, false);
+        tile.name = "Tile " + i + "," + j;
+        tiles.Add(pos, tile);
+        return tile;
+    }
+
+    private void CreateGrid()
+    {
+
         for (int i = 0; i < GRID_SIZE; i++)
         {
-            for(int j = 0; j < GRID_SIZE; j++)
+            for (int j = 0; j < GRID_SIZE; j++)
             {
-                var pos = new Vector2(i,j);
-                var tile = Instantiate(tilePrefab, new Vector3(x+(tileWidth*i),y-(tileWidth*j)), Quaternion.identity);
-                var isOffset = (i % 2 == 0 && j % 2 != 0) || (i % 2 != 0 && j % 2 == 0);
-                tile.Init(this, isOffset, boardBack.transform, pos, false);
-                tile.name = "Tile " + i + "," + j;
-                tiles.Add(pos, tile);
-                if((x == 7 || x == 8) && (y == 7 || y == 8))
+                var tile = CreateTile(i, j);
+                if ((i == 7 || i == 8) && (j == 7 || j == 8))
                 {
                     tile.SetSpecialTile(false, false);
                 }
@@ -371,20 +407,13 @@ public class GameScript : MonoBehaviour {
 
     private void CreateHiddenTiles()
     {
-        var x = boardBack.transform.position.x - (boardWidth / 2f) + (tileWidth / 2f);
-        var y = boardBack.transform.position.y + (boardWidth / 2f) - (tileWidth / 2f);
         for (int k = 0; k < hiddenTileLocations.GetLength(0); k++)
         {
             var i = hiddenTileLocations[k, 0];
             var j = hiddenTileLocations[k, 1];
-            var pos = new Vector2(i, j);
-            var tile = Instantiate(tilePrefab, new Vector3(x + (tileWidth * i), y - (tileWidth * j)), Quaternion.identity);
-            var isOffset = (i % 2 == 0 && j % 2 != 0) || (i % 2 != 0 && j % 2 == 0);
-            tile.Init(this, isOffset, boardBack.transform, pos, false);
-            tile.name = "Tile " + i + "," + j;
-            tiles.Add(pos, tile);
+            var tile = CreateTile(i, j);
             tile.SetSpecialTile(false, true);
-            if(j == 5 || j == 10 || i == 5 || i == 10)
+            if (j == 5 || j == 10 || i == 5 || i == 10)
             {
                 tile.isOccupied = true;
             }
@@ -403,26 +432,26 @@ public class GameScript : MonoBehaviour {
     public GameObject InstantiatePrefab(string path, float x, float y, string name)
     {
         var prefab = Resources.Load(path) as GameObject;
-        var obj = Instantiate(prefab, new Vector3(x,y,1), Quaternion.identity);
+        var obj = Instantiate(prefab, new Vector3(x, y, 1), Quaternion.identity);
         obj.name = name;
 
         return obj;
     }
-    public void PlaceTower(Tile tile)
+    private void PlaceTower(Tile tile)
     {
         int cost = towerStatInfo[(TowerType)selectedTowerInShop].towerStats.cost;
-        if ( playerStats.money < cost)
+        if (playerStats.money < cost)
         {
             return;
         }
         playerStats.money -= cost;
-        UpdateText();
+        UpdateStatsText();
         Tower tower;
         switch ((TowerType)selectedTowerInShop)
         {
             case TowerType.PINEAPPLE_CANNON:
                 var towerObject = InstantiateWithParent(PineappleCannonTower.towerPath, "PineappleCannon", tile.transform);
-                tower = new PineappleCannonTower(this, towerObject,pineappleCannonTowerStats);
+                tower = new PineappleCannonTower(this, towerObject, pineappleCannonTowerStats);
                 break;
             case TowerType.PINA_COLADA:
                 towerObject = InstantiateWithParent(PinaColadaTower.towerPath, "PinaColada", tile.transform);
@@ -455,14 +484,15 @@ public class GameScript : MonoBehaviour {
         tickableTowers.Add(tower);
         tile.tower = tower;
         tile.isOccupied = true;
+        // Inform enemies to update their paths.
         boardHasChanged = true;
     }
 
     public void InteractTile(Tile tile)
     {
-        if(selectedTowerInShop == -1)
+        if (selectedTowerInShop == -1) // If no tower is selected in the shop
         {
-            if (tile.isOccupied)
+            if (tile.isOccupied) // If tile has a tower select it othwerise deselect the current tile.
             {
                 SelectTile(tile);
             }
@@ -473,7 +503,7 @@ public class GameScript : MonoBehaviour {
         }
         else
         {
-            if (tile.isOccupied)
+            if (tile.isOccupied) // If tile has a tower select it othwerise place the currently selected tower.
             {
                 SelectTile(tile);
                 return;
@@ -486,16 +516,22 @@ public class GameScript : MonoBehaviour {
         }
     }
 
-    public bool CanPlaceTile(Tile tile)
+    private bool CanPlaceTile(Tile tile)
     {
+        if (!tile.isInteractable)
+        {
+            return false;
+        }
+        // If any path from the entrance is blocked by placing a tower at this position then return false.
         tile.isOccupied = true;
         var notBlockingEntrance = CheckEntrancePaths();
         tile.isOccupied = false;
         return notBlockingEntrance;
     }
 
-    public bool CheckEntrancePaths()
+    private bool CheckEntrancePaths()
     {
+        // Check each path from the entrance to the goal and return false if the path is blocked.
         var tmpPathUp = AStar.GetPath(startingTile[(int)SpawnLocation.UP]);
         if (tmpPathUp.Count == 0)
         {
@@ -519,9 +555,9 @@ public class GameScript : MonoBehaviour {
         return true;
     }
 
-    public void SelectTile(Tile tile)
+    private void SelectTile(Tile tile)
     {
-        if (selectedTowerInShop != -1)
+        if (selectedTowerInShop != -1) // If a tower in the shop is selected deselect that button.
         {
             shopButtons[selectedTowerInShop].SetBool("Active", false);
             selectedTowerInShop = -1;
@@ -535,7 +571,7 @@ public class GameScript : MonoBehaviour {
 
     private void DeselectTile()
     {
-        if (selectedTile != null)
+        if (selectedTile != null) // If a tile is selected then disable the tower radius display of that tile.
         {
             selectedTile.tower.ToggleTowerRadiusDisplay(false);
             selectedTile.SelectTile(false);
@@ -544,6 +580,7 @@ public class GameScript : MonoBehaviour {
         SetTowerStatsCardInfo();
     }
 
+    // Deselect current tile and shop button.
     public void Deselect()
     {
         if (selectedTowerInShop != -1)
@@ -553,7 +590,7 @@ public class GameScript : MonoBehaviour {
         selectedTowerInShop = -1;
         DeselectTile();
     }
-        
+
     public void SelectShopTower(int towerIndex)
     {
         if (selectedTowerInShop != -1)
@@ -570,7 +607,7 @@ public class GameScript : MonoBehaviour {
 
     private void SetTowerStatsCardInfo()
     {
-        if(selectedTowerInShop != -1)
+        if (selectedTowerInShop != -1) // If a shop button is selected then display tower info and cost.
         {
             towerStatsCard.SetActive(true);
             var info = towerStatInfo[(TowerType)selectedTowerInShop];
@@ -601,7 +638,7 @@ public class GameScript : MonoBehaviour {
                 specialStatus.SetActive(false);
             }
         }
-        else if(selectedTile != null)
+        else if (selectedTile != null) // If a tile is selected the display that towers stats and upgrade info.
         {
             towerStatsCard.SetActive(true);
             Tower tower = selectedTile.tower;
@@ -614,12 +651,13 @@ public class GameScript : MonoBehaviour {
             sellAmountText.text = "" + currentStatus.sellAmount;
             costUI.SetActive(false);
             upgradeSellUI.SetActive(true);
-            towerLevelText.text = "" + (tower.level+1);
+            towerLevelText.text = "" + (tower.level + 1);
 
             upgradeButton.SetActive(!tower.maxUpgrade);
 
             speedCurrentValue.text = "" + currentStatus.speed;
-            double deltaSpeed = System.Math.Round((upgradeStatus.speed - currentStatus.speed)*100) / 100;
+            // fixes rounding errors for doubles
+            double deltaSpeed = System.Math.Round((upgradeStatus.speed - currentStatus.speed) * 100) / 100;
             speedUpgradeValue.text = "" + deltaSpeed;
 
             damageCurrentValue.text = "" + currentStatus.damage;
@@ -629,7 +667,7 @@ public class GameScript : MonoBehaviour {
             double deltaRange = System.Math.Round((upgradeStatus.range - currentStatus.range) * 100) / 100;
             rangeUpgradeValue.text = "+" + deltaRange;
 
-            if (info.towerStats.hasSpecial)
+            if (info.towerStats.hasSpecial) // If the tower has a special stat then display that info.
             {
                 specialStatus.SetActive(true);
                 specialCurrentValue.text = "" + currentStatus.special;
@@ -640,7 +678,7 @@ public class GameScript : MonoBehaviour {
             {
                 specialStatus.SetActive(false);
             }
-            if (tower.level + 1 == 5)
+            if (tower.maxUpgrade) // If the tower is fully upgraded then do not display upgrade text.
             {
                 speedUpgradeValue.text = "";
                 damageUpgradeValue.text = "";
@@ -729,7 +767,7 @@ public class GameScript : MonoBehaviour {
         }
         projectile.SetProjectileValues(projectileDamageReturn);
         projectile.UniqueReset();
-        projectilePool.Add(projectileObject,projectile);
+        projectilePool.Add(projectileObject, projectile);
         tickableObjects.Add(projectile);
         activeProjectiles += 1;
     }
@@ -740,7 +778,7 @@ public class GameScript : MonoBehaviour {
         {
             playerStats.score += enemy.score;
             playerStats.money += enemy.money;
-            if(level == MAX_WAVES && activeWaves.Count == 0 && activeEnemies == 0)
+            if (level == MAX_WAVES && activeWaves.Count == 0 && activeEnemies == 0)
             {
                 gameState = GameState.WIN;
                 UpdateGameStatus();
@@ -756,28 +794,33 @@ public class GameScript : MonoBehaviour {
                 UpdateGameStatus();
             }
         }
-        UpdateText();
+        UpdateStatsText();
         enemyPool[enemy].SetActive(false);
         activeEnemies -= 1;
     }
 
-    public void UpdateText()
+    private void UpdateStatsText()
     {
         healthText.text = "" + playerStats.health;
         moneyText.text = "" + playerStats.money;
         scoreText.text = "SCORE: " + playerStats.score;
     }
 
-    public void SpawnEnemy(EnemyType type, SpawnLocation spawnLocation, int difficulty)
+    private void SpawnEnemy(EnemyType type, SpawnLocation spawnLocation, int difficulty)
     {
-
         var spawnPosition = enemySpawn[(int)spawnLocation].position;
         Enemy enemy = GetEnemyFromPool(type, spawnPosition, difficulty);
         var randomOffset = new Vector3(Random.value - 0.5f, Random.value - 0.5f, 0);
         enemy.enemy.transform.position += randomOffset;
 
+        if (type == EnemyType.FLYING) // If enemy is of type flying then it just paths directly to the goal.
+        {
+            enemy.SetEnemyPath(flyingPath);
+            return;
+        }
+
         Stack<Node> path;
-        switch (spawnLocation)
+        switch (spawnLocation) // Get last generated path from entrance.
         {
             case SpawnLocation.UP:
                 path = pathUp;
@@ -795,14 +838,12 @@ public class GameScript : MonoBehaviour {
                 path = pathUp;
                 break;
         }
-        if(type == EnemyType.FLYING)
-        {
-            enemy.SetEnemyPath(flyingPath);
-            return;
-        }
+
         enemy.SetEnemyPath(new Stack<Node>(path.Reverse()));
     }
 
+    // Spawns big and small group enemies when a normal group enemy is broken apart.
+    // TODO: add iframes when groups spawn to prevent taking damage from existing projectiles that have not been destroyed yet.
     public void SpawnGroup(EnemyType type, Vector3 spawnPosition, Quaternion spawnRotation, int difficulty, Stack<Node> path)
     {
         Enemy enemy = GetEnemyFromPool(type, spawnPosition, difficulty);
@@ -810,11 +851,11 @@ public class GameScript : MonoBehaviour {
         enemy.SetEnemyPath(new Stack<Node>(path.Reverse()));
     }
 
-    public Enemy GetEnemyFromPool(EnemyType type, Vector3 spawnPosition, int difficulty)
+    private Enemy GetEnemyFromPool(EnemyType type, Vector3 spawnPosition, int difficulty)
     {
         float x = spawnPosition.x;
         float y = spawnPosition.y;
-        
+
         if (activeEnemies == enemyPool.Count)
         {
             foreach (KeyValuePair<Enemy, GameObject> entry in enemyPool)
@@ -886,9 +927,9 @@ public class GameScript : MonoBehaviour {
     public void NewWave(EnemyType type, int waveLevel)
     {
         SpawnLocation spawnLocation = (SpawnLocation)(waveLevel % 4);
-        int waveDifficulty = Mathf.CeilToInt(waveLevel / MAX_WAVES);
+        int waveDifficulty = Mathf.FloorToInt(waveLevel / 7); // after every boss the difficulty increases
         int enemyAmount = 10 + (waveDifficulty);
-        if (type == EnemyType.SWARM)
+        if (type == EnemyType.SWARM) // If enemy of type swarm then generate a duplicate wave on the opposite side of the map and double the default enemy count.
         {
             enemyAmount *= 2;
             var secondSpawnLocation = (SpawnLocation)((waveLevel + 2) % 4);
@@ -897,34 +938,34 @@ public class GameScript : MonoBehaviour {
         }
         Wave wave = new Wave(type, spawnLocation, enemyAmount, waveDifficulty);
         activeWaves.Add(wave);
-        
-        if(sentWaves > 0)
+
+        if (sentWaves > 0) // If there are still waves that have been requested then decrease the sent waves count.
         {
             sentWaves -= 1;
         }
-        if(sentWaves == 0)
+        if (sentWaves == 0)
         {
             waveBoxSpeed = NORMAL_WAVE_SPEED;
         }
     }
     public void NewWaveBox()
     {
-        if(level == MAX_WAVES)
+        if (level == MAX_WAVES)
         {
             return;
         }
-        if(activeWaveBoxes == waveBoxPool.Count)
+        if (activeWaveBoxes == waveBoxPool.Count)
         {
             var waveBoxObj = InstantiateWithParent(waveBoxPath, "WaveBox", waveBoxSpawn);
             var waveBox = waveBoxObj.GetComponent<WaveBox>();
             waveBox.Init(this, waveOrder[(int)(level % 7)], level);
-            waveBoxPool.Add(waveBoxObj,waveBox);
+            waveBoxPool.Add(waveBoxObj, waveBox);
             activeWaveBoxes += 1;
             level += 1;
         }
         else
         {
-            foreach(KeyValuePair<GameObject, WaveBox> entry in waveBoxPool)
+            foreach (KeyValuePair<GameObject, WaveBox> entry in waveBoxPool)
             {
                 if (!entry.Key.activeInHierarchy)
                 {
@@ -944,7 +985,7 @@ public class GameScript : MonoBehaviour {
         activeWaveBoxes -= 1;
     }
 
-    public void ActivateWave()
+    private void ActivateWave()
     {
         for (int i = 0; i < activeWaves.Count; i++)
         {
@@ -962,17 +1003,16 @@ public class GameScript : MonoBehaviour {
 
     public void SellTower()
     {
-        if(selectedTile == null)
+        if (selectedTile == null)
         {
             return;
         }
         var money = selectedTile.tower.GetTowerStats().sellAmount;
         playerStats.money += money;
-        selectedTile.tower.Sell();
-        selectedTile.isOccupied = false;
+        selectedTile.ClearTile();
         selectedTile.SelectTile(false);
         selectedTile = null;
-        UpdateText();
+        UpdateStatsText();
         SetTowerStatsCardInfo();
         boardHasChanged = true;
     }
@@ -984,17 +1024,17 @@ public class GameScript : MonoBehaviour {
             return;
         }
         var cost = selectedTile.tower.GetUpgradeStats().cost;
-        if(playerStats.money < cost)
+        if (playerStats.money < cost)
         {
             return;
         }
         if (selectedTile.tower.Upgrade())
         {
             playerStats.money -= cost;
-            UpdateText();
+            UpdateStatsText();
             SetTowerStatsCardInfo();
         }
-        
+
     }
 
     public void RemoveGameObject(GameObject obj)
@@ -1008,7 +1048,8 @@ public class GameScript : MonoBehaviour {
     }
 
 
-    void Update() {
+    void Update()
+    {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             Menu(!isPaused);
@@ -1047,7 +1088,7 @@ public class GameScript : MonoBehaviour {
         {
             obj.Tick();
         }
-        foreach(KeyValuePair<GameObject, WaveBox> entry in waveBoxPool)
+        foreach (KeyValuePair<GameObject, WaveBox> entry in waveBoxPool)
         {
             entry.Value.Tick();
         }

@@ -2,7 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PinaColadaTower : Tower {
+public class PinaColadaTower : Tower
+{
 
     public static string towerPath = "Towers/PinaColada";
     public PinaColadaTower(GameScript main, GameObject tower, TowerStats[] towerStats)
@@ -22,7 +23,7 @@ public class PinaColadaTower : Tower {
         type = TowerType.PINA_COLADA;
         projectileType = ProjectileType.ICE;
         projectileDamageReturn = new ProjectileDamageReturn(currentStats.damage, true, (float)currentStats.special);
-        towerRadius.levelIndicator.text = "" + (level+1);
+        towerRadius.levelIndicator.text = "" + (level + 1);
         pivotSpeed = 600f;
     }
 }

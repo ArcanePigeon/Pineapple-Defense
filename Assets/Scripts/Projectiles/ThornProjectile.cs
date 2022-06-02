@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class ThornProjectile : Projectile
 {
-    
+
     public static string projectilePath = "Projectiles/ThornProjectile";
     private int collisionsUntilBreak;
     public ThornProjectile(GameScript main, GameObject projectile)
@@ -17,7 +17,7 @@ public class ThornProjectile : Projectile
     }
     public override void OnCollision()
     {
-        if(collisionsUntilBreak > 0)
+        if (collisionsUntilBreak > 0)
         {
             collisionsUntilBreak -= 1;
             return;

@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class LeafProjectile : Projectile
 {
-    
+
     public static string projectilePath = "Projectiles/GatlinProjectile";
     public LeafProjectile(GameScript main, GameObject projectile)
     {

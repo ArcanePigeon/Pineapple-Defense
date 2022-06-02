@@ -2,8 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AcidicJuicerTower : Tower {
-    
+public class AcidicJuicerTower : Tower
+{
+
     public static string towerPath = "Towers/AcidicJuicer" +
         "";
     public AcidicJuicerTower(GameScript main, GameObject tower, TowerStats[] towerStats)
@@ -22,7 +23,7 @@ public class AcidicJuicerTower : Tower {
         targets = new List<Enemy>();
         this.type = TowerType.ACIDIC_JUICER;
         this.projectileDamageReturn = new ProjectileDamageReturn(currentStats.damage, false, (float)currentStats.special);
-        towerRadius.levelIndicator.text = "" + (level+1);
+        towerRadius.levelIndicator.text = "" + (level + 1);
     }
     public override void TrackEnemies()
     {
@@ -43,7 +44,7 @@ public class AcidicJuicerTower : Tower {
 
     public override void AddEnemyToList(Enemy enemy)
     {
-        if(enemy.type == EnemyType.FLYING)
+        if (enemy.type == EnemyType.FLYING)
         {
             return;
         }
