@@ -37,6 +37,10 @@ public struct PlayerStats
         this.score = score;
     }
 }
+public enum GameState
+{
+    NONE, WIN, LOSE, PLAYING
+}
 public class GameScript : MonoBehaviour {
     private bool isPaused = false;
     [SerializeField] private Tile tilePrefab;
@@ -111,6 +115,11 @@ public class GameScript : MonoBehaviour {
     [SerializeField] private Animator[] shopButtons = new Animator[7];
 
     [SerializeField] private GameObject menu;
+    [SerializeField] private TMP_Text gameStatusText;
+    [SerializeField] private TMP_Text playButtonText;
+    [SerializeField] private TMP_Text winningScoreText;
+    [SerializeField] private GameObject resumeButton;
+    private GameState gameState;
 
     private const int MAX_WAVES = 35;
 
@@ -181,6 +190,9 @@ public class GameScript : MonoBehaviour {
 
 
     void Start() {
+        gameState = GameState.NONE;
+        UpdateGameStatus();
+        Menu(true);
         playerStats = new PlayerStats(100, 100, 0);
         tiles = new Dictionary<Vector2, Tile>();
         tickableObjects = new List<TickableObject>();
@@ -200,6 +212,38 @@ public class GameScript : MonoBehaviour {
         waveTimer = new Timer(1f, false);
         sentWaves = 0;
         NewWaveBox();
+        
+        
+    }
+
+    public void Menu(bool open)
+    {
+        if (open)
+        {
+            isPaused = true;
+            menu.SetActive(true);
+        }
+        else
+        {
+            isPaused = false;
+            menu.SetActive(false);
+        }
+    }
+
+    public void PlayGame()
+    {
+        
+        if (gameState != GameState.NONE)
+        {
+            RestartGame();
+        }
+        gameState = GameState.PLAYING;
+        UpdateGameStatus();
+        Menu(false);
+    }
+    public void Quit()
+    {
+        Application.Quit();
     }
 
     private void InitAStar()
@@ -221,6 +265,7 @@ public class GameScript : MonoBehaviour {
 
     public void RestartGame()
     {
+        Deselect();
         playerStats = new PlayerStats(100, 100, 0);
         foreach(var obj in tickableObjects)
         {
@@ -246,6 +291,41 @@ public class GameScript : MonoBehaviour {
         NewWaveBox();
         UpdateText();
         SetTowerStatsCardInfo();
+    }
+    public void UpdateGameStatus()
+    {
+        resumeButton.SetActive(false);
+        winningScoreText.text = "";
+        switch (gameState)
+        {
+            case GameState.NONE:
+                gameStatusText.color = Color.white;
+                gameStatusText.text = "Pineapple Defense";
+                playButtonText.text = "Play";
+                break;
+            case GameState.WIN:
+                gameStatusText.color = Color.green;
+                gameStatusText.text = "YOU WIN";
+                playButtonText.text = "Play Again";
+                winningScoreText.text = "Score: " + playerStats.score;
+                Menu(true);
+                break;
+            case GameState.LOSE:
+                gameStatusText.color = Color.red;
+                gameStatusText.text = "GAME OVER";
+                playButtonText.text = "Retry";
+                winningScoreText.text = "Score: " + playerStats.score;
+                Menu(true);
+                break;
+            case GameState.PLAYING:
+                gameStatusText.color = Color.white;
+                gameStatusText.text = "PAUSED";
+                playButtonText.text = "Restart";
+                resumeButton.SetActive(true);
+                break;
+            default:
+                break;
+        }    
     }
     public void AddTowerStatInfo()
     {
@@ -660,6 +740,11 @@ public class GameScript : MonoBehaviour {
         {
             playerStats.score += enemy.score;
             playerStats.money += enemy.money;
+            if(level == MAX_WAVES && activeWaves.Count == 0 && activeEnemies == 0)
+            {
+                gameState = GameState.WIN;
+                UpdateGameStatus();
+            }
         }
         else
         {
@@ -667,7 +752,8 @@ public class GameScript : MonoBehaviour {
             if (playerStats.health <= 0)
             {
                 playerStats.health = 0;
-                // GAME OVER
+                gameState = GameState.LOSE;
+                UpdateGameStatus();
             }
         }
         UpdateText();
@@ -917,22 +1003,25 @@ public class GameScript : MonoBehaviour {
     void Update() {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            isPaused = !isPaused;
+            Menu(!isPaused);
         }
-        if (Input.GetKeyDown(KeyCode.R))
+        // Cheat Codes
+        /*
+        if (Input.GetKeyDown(KeyCode.C))
         {
-            RestartGame();
+            playerStats = new PlayerStats(999, 99999, 0);
         }
-        if (Input.GetKeyDown(KeyCode.Tab))
-        {
-            isTowerLevelVisible = !isTowerLevelVisible;
-            foreach(Tower tower in tickableTowers)
-            {
-                tower.ToggleTowerLevel(isTowerLevelVisible);
-            }
-        }
+        */
         if (!isPaused)
         {
+            if (Input.GetKeyDown(KeyCode.Tab))
+            {
+                isTowerLevelVisible = !isTowerLevelVisible;
+                foreach (Tower tower in tickableTowers)
+                {
+                    tower.ToggleTowerLevel(isTowerLevelVisible);
+                }
+            }
             TickObjects();
             GoTimers();
             CheckTimers();
