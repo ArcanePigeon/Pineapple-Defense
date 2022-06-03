@@ -5,6 +5,7 @@ using UnityEngine;
 public class CollidableEnemy : MonoBehaviour
 {
     private Enemy enemy;
+    [SerializeField] public SpriteRenderer spriteRenderer;
     public void Init(Enemy enemy)
     {
         this.enemy = enemy;

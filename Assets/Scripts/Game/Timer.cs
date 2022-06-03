@@ -12,7 +12,7 @@ public class Timer
     {
         this.timerLength = timerLength;
         this.currentTime = timerLength;
-        this.isTimerUp = false;
+        this.isTimerUp = invertOutput;
         this.invertOutput = invertOutput;
     }
     public void Tick()
@@ -42,5 +42,14 @@ public class Timer
     public float GetCurrentTime()
     {
         return currentTime;
+    }
+
+    public float GetTimerPercentage()
+    {
+        if(currentTime < 0)
+        {
+            return 0;
+        }
+        return 1f - (currentTime / timerLength);
     }
 }

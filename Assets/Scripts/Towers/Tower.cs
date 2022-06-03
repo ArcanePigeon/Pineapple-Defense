@@ -5,22 +5,22 @@ using UnityEngine;
 public struct TowerStats
 {
     public int cost;
-    public int sellAmount;
     public double speed;
     public int damage;
     public double range;
     public double special;
     public bool hasSpecial;
+    public float upgradeTime;
 
-    public TowerStats(int cost, int sellAmount, double speed, int damage, double range, double special, bool hasSpecial)
+    public TowerStats(int cost, double speed, int damage, double range, double special, bool hasSpecial, float upgradeTime)
     {
         this.cost = cost;
-        this.sellAmount = sellAmount;
         this.speed = speed;
         this.damage = damage;
         this.range = range;
         this.special = special;
         this.hasSpecial = hasSpecial;
+        this.upgradeTime = upgradeTime;
     }
 }
 public enum TowerType
@@ -56,30 +56,39 @@ public abstract class Tower : TickableObject
     public List<Enemy> targets;
     public GameObject closestEnemy;
     public float pivotSpeed;
+    public Timer upgradeTimer;
+    public bool upgrading;
+    public int totalValue;
     public virtual bool Upgrade()
     {
         if (maxUpgrade)
         {
             return false;
         }
+        upgrading = true;
+        upgradeTimer.SetTimerLength(upgradeStats.upgradeTime);
+        upgradeTimer.ResetTimer();
+        totalValue += upgradeStats.cost;
+        return true;
+    }
+    private void UpgradeTower()
+    {
         level++;
         currentStats = upgradeStats;
         if (level == 4)
         {
             maxUpgrade = true;
-            upgradeStats = new TowerStats(0, 0, 0, 0, 0, 0, currentStats.hasSpecial);
+            upgradeStats = new TowerStats(0, 0, 0, 0, 0, currentStats.hasSpecial, 0);
         }
         else
         {
             upgradeStats = towerStats[level + 1];
         }
-
         attackTimer.SetTimerLength((float)currentStats.speed);
         projectileDamageReturn.damage = currentStats.damage;
         towerRadius.radius.localScale = Vector3.one * (float)currentStats.range;
         projectileDamageReturn.special = (float)currentStats.special;
         towerRadius.levelIndicator.text = "" + (level + 1);
-        return true;
     }
     public virtual void AddEnemyToList(Enemy enemy)
     {
@@ -150,12 +159,31 @@ public abstract class Tower : TickableObject
     }
     public override void Tick()
     {
+        UpdateUpgradeSlider();
         TrackEnemies();
-        attackTimer.Tick();
-        if (attackTimer.Status())
+        if (!upgrading)
         {
-            attackTimer.ResetTimer();
-            Attack();
+            attackTimer.Tick();
+            if (attackTimer.Status())
+            {
+                attackTimer.ResetTimer();
+                Attack();
+            }
+        }
+
+    }
+    public void UpdateUpgradeSlider()
+    {
+        if (upgrading)
+        {
+            upgradeTimer.Tick();
+            if (upgradeTimer.Status())
+            {
+                upgrading = false;
+                UpgradeTower();
+                main.UpdateTowerStatsCardInfo();
+            }
+            towerRadius.upgradeProgressSlider.value = upgradeTimer.GetTimerPercentage();
         }
     }
 }

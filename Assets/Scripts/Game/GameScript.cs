@@ -52,6 +52,7 @@ public class GameScript : MonoBehaviour
     private PlayerStats playerStats;
     private bool isTowerLevelVisible = true;
     private GameState gameState;
+    [SerializeField] public bool ENABLE_CHEAT_CODE = false;
 
     // Object Pools
     private int activeProjectiles;
@@ -70,6 +71,7 @@ public class GameScript : MonoBehaviour
     private float boardWidth;
     [SerializeField] private Transform[] enemySpawn = new Transform[4];
     [SerializeField] private Transform masterPineapple;
+    [SerializeField] private Animator masterPineappleAnimator;
     private Vector2[] startingTile = { new Vector2(7, -2), new Vector2(17, 7), new Vector2(7, 17), new Vector2(-2, 7) };
     // Tiles outside of the placeable field used for pathing
     private int[,] hiddenTileLocations = {
@@ -158,61 +160,61 @@ public class GameScript : MonoBehaviour
     private Dictionary<TowerType, TowerInfo> towerStatInfo;
 
     // Tower Stats for each level 1 - 5
-    // Cost, Sell Amount, Speed, Damage, Range, Special, hasSpecial
+    // Cost, Speed, Damage, Range, Special, hasSpecial, Upgrade Time
     private TowerStats[] pineappleCannonTowerStats = {
-        new TowerStats(10,    7,   3,     5,   1,     0.5,  true),
-        new TowerStats(30,    28,  2.8,   8,   1.2,   0.8,  true),
-        new TowerStats(90,    91,  2.6,   13,  1.6,   1.1,  true),
-        new TowerStats(180,   217, 2.4,   20,  2.0,   1.5,  true),
-        new TowerStats(350,   462, 2.0,   45,  2.9,   2.0,  true)
+        new TowerStats(10,    3,     5,   1,     0.5,  true, 0f),
+        new TowerStats(80,    2.8,   8,   1.2,   0.8,  true, 1f),
+        new TowerStats(350,   2.6,   13,  1.4,   1.1,  true, 3f),
+        new TowerStats(850,   2.4,   20,  1.6,   1.5,  true, 9f),
+        new TowerStats(1500,  2.0,   45,  2.9,   2.0,  true, 20f)
     };
 
     private TowerStats[] pinaColadaTowerStats = {
-        new TowerStats(15,    10,   4,     0,   1.4,   2,    true),
-        new TowerStats(60,    52,   3.8,   0,   1.8,   2.3,  true),
-        new TowerStats(150,   157,  3.3,   0,   2.1,   2.8,  true),
-        new TowerStats(400,   437,  3,     0,   2.6,   3.5,  true),
-        new TowerStats(900,   1067, 2.6,   0,   3.1,   4.5,  true)
+        new TowerStats(20,    4,     0,   1.4,   2,    true, 0f),
+        new TowerStats(120,   3.8,   0,   1.6,   2.3,  true, 1f),
+        new TowerStats(450,   3.3,   0,   1.8,   2.8,  true, 3f),
+        new TowerStats(1000,  3,     0,   2.6,   3.5,  true, 9f),
+        new TowerStats(2100,  1.6,   0,   3.1,   4.5,  true, 20f)
     };
 
     private TowerStats[] gatlinPineappleTowerStats = {
-        new TowerStats(8,    5,     2.5,     1,   1,       3,  true),
-        new TowerStats(25,   23,    2.1,     2,   1.4,     4,  true),
-        new TowerStats(70,   72,    1.7,     4,   1.9,     5,  true),
-        new TowerStats(250,  247,   1.3,     7,   2.6,     7,  true),
-        new TowerStats(800,  807,   1.0,     12,  3.0,     10, true)
+        new TowerStats(15,   2.5,     1,   1,       3,  true, 0f),
+        new TowerStats(85,   2.1,     2,   1.2,     4,  true, 1f),
+        new TowerStats(225,  1.7,     4,   1.6,     5,  true, 3f),
+        new TowerStats(750,  1.3,     7,   2.0,     7,  true, 9f),
+        new TowerStats(1600, 1.0,     12,  3.0,     10, true, 20f)
     };
 
     private TowerStats[] acidicJuicerTowerStats = {
-        new TowerStats(6,    4,    1.3,     1,   0.8,     0,  false),
-        new TowerStats(20,   18,   1.2,     2,   1.0,     0,  false),
-        new TowerStats(100,  88,   1.1,     4,   1.3,     0,  false),
-        new TowerStats(450,  403,  1.0,     6,   1.7,     0,  false),
-        new TowerStats(1000, 1103, 0.9,     9,   2.2,     0,  false)
+        new TowerStats(20,   1.3,     1,   0.8,     0,  false, 0f),
+        new TowerStats(50,   1.2,     2,   0.9,     0,  false, 1f),
+        new TowerStats(300,  1.1,     4,   1.2,     0,  false, 3f),
+        new TowerStats(850,  1.0,     6,   1.4,     0,  false, 9f),
+        new TowerStats(2000, 0.9,     9,   2.2,     0,  false, 20f)
     };
 
     private TowerStats[] sliceThrowerTowerStats = {
-        new TowerStats(10,    7,     3,     3,   1.5,     1,  true),
-        new TowerStats(50,    42,    2.8,   6,   1.8,     2,  true),
-        new TowerStats(120,   126,   2.6,   9,   2.2,     4,  true),
-        new TowerStats(700,   616,   2.4,   12,  2.7,     8,  true),
-        new TowerStats(1200,  1456,  2,     25,  3.3,     10, true)
+        new TowerStats(18,    3,     3,   1.5,     1,  true, 0f),
+        new TowerStats(50,    2.8,   6,   1.7,     2,  true, 1f),
+        new TowerStats(120,   2.6,   9,   2.0,     4,  true, 3f),
+        new TowerStats(700,   2.4,   12,  2.3,     8,  true, 9f),
+        new TowerStats(1200,  2,     25,  3.3,     10, true, 20f)
     };
 
     private TowerStats[] thornTosserTowerStats = {
-        new TowerStats(8,    5,     1.8,     2,   1,       1,  true),
-        new TowerStats(25,   23,    1.6,     4,   1.1,     2,  true),
-        new TowerStats(70,   72,    1.4,     8,   1.2,     3,  true),
-        new TowerStats(250,  247,   1.0,     15,  1.3,     4,  true),
-        new TowerStats(800,  807,   0.8,     35,  2.0,     8,  true)
+        new TowerStats(12,   1.8,     2,   1,       1,  true, 0f),
+        new TowerStats(40,   1.6,     4,   1.1,     2,  true, 1f),
+        new TowerStats(110,  1.4,     8,   1.2,     3,  true, 3f),
+        new TowerStats(800,  1.0,     15,  1.3,     4,  true, 9f),
+        new TowerStats(1900, 0.8,     35,  2.0,     8,  true, 20f)
     };
 
     private TowerStats[] pineappleWallTowerStats = {
-        new TowerStats(4,    2,   0,     0,   0,     0,  false),
-        new TowerStats(0,    0,   0,     0,   0,     0,  false),
-        new TowerStats(0,    0,   0,     0,   0,     0,  false),
-        new TowerStats(0,    0,   0,     0,   0,     0,  false),
-        new TowerStats(0,    0,   0,     0,   0,     0,  false)
+        new TowerStats(2,    0,     0,   0,     0,  false, 0f),
+        new TowerStats(0,    0,     0,   0,     0,  false, 0f),
+        new TowerStats(0,    0,     0,   0,     0,  false, 0f),
+        new TowerStats(0,    0,     0,   0,     0,  false, 0f),
+        new TowerStats(0,    0,     0,   0,     0,  false, 0f)
     };
 
 
@@ -221,7 +223,7 @@ public class GameScript : MonoBehaviour
         gameState = GameState.NONE;
         UpdateGameStatus();
         Menu(true);
-        playerStats = new PlayerStats(100, 100, 0);
+        playerStats = new PlayerStats(100, 200, 0);
         tiles = new Dictionary<Vector2, Tile>();
         tickableObjects = new List<TickableObject>();
         tickableTowers = new List<TickableObject>();
@@ -240,8 +242,8 @@ public class GameScript : MonoBehaviour
         waveTimer = new Timer(1f, false);
         sentWaves = 0;
         NewWaveBox();
-
-
+        UpdateStatsText();
+        UpdateTowerStatsCardInfo();
     }
 
     public void Menu(bool open)
@@ -294,7 +296,7 @@ public class GameScript : MonoBehaviour
     public void RestartGame()
     {
         Deselect();
-        playerStats = new PlayerStats(100, 100, 0);
+        playerStats = new PlayerStats(100, 200, 0);
         foreach (var obj in tickableObjects)
         {
             obj.Disable();
@@ -318,7 +320,7 @@ public class GameScript : MonoBehaviour
         sentWaves = 0;
         NewWaveBox();
         UpdateStatsText();
-        SetTowerStatsCardInfo();
+        UpdateTowerStatsCardInfo();
     }
     public void UpdateGameStatus()
     {
@@ -481,6 +483,7 @@ public class GameScript : MonoBehaviour
                 return;
         }
         tower.ToggleTowerLevel(isTowerLevelVisible);
+        tower.totalValue += cost;
         tickableTowers.Add(tower);
         tile.tower = tower;
         tile.isOccupied = true;
@@ -566,7 +569,7 @@ public class GameScript : MonoBehaviour
         tile.SelectTile(true);
         selectedTile = tile;
         tile.tower.ToggleTowerRadiusDisplay(true);
-        SetTowerStatsCardInfo();
+        UpdateTowerStatsCardInfo();
     }
 
     private void DeselectTile()
@@ -577,7 +580,7 @@ public class GameScript : MonoBehaviour
             selectedTile.SelectTile(false);
         }
         selectedTile = null;
-        SetTowerStatsCardInfo();
+        UpdateTowerStatsCardInfo();
     }
 
     // Deselect current tile and shop button.
@@ -605,7 +608,7 @@ public class GameScript : MonoBehaviour
         DeselectTile();
     }
 
-    private void SetTowerStatsCardInfo()
+    public void UpdateTowerStatsCardInfo()
     {
         if (selectedTowerInShop != -1) // If a shop button is selected then display tower info and cost.
         {
@@ -648,12 +651,12 @@ public class GameScript : MonoBehaviour
             towerNameText.text = info.name;
             towerDescriptionText.text = info.description;
             upgradeCostText.text = "" + upgradeStatus.cost;
-            sellAmountText.text = "" + currentStatus.sellAmount;
+            sellAmountText.text = "" + Mathf.FloorToInt(0.7f * tower.totalValue);
             costUI.SetActive(false);
             upgradeSellUI.SetActive(true);
             towerLevelText.text = "" + (tower.level + 1);
 
-            upgradeButton.SetActive(!tower.maxUpgrade);
+            upgradeButton.SetActive(true);
 
             speedCurrentValue.text = "" + currentStatus.speed;
             // fixes rounding errors for doubles
@@ -678,8 +681,9 @@ public class GameScript : MonoBehaviour
             {
                 specialStatus.SetActive(false);
             }
-            if (tower.maxUpgrade) // If the tower is fully upgraded then do not display upgrade text.
+            if (tower.maxUpgrade || tower.upgrading) // If the tower is fully upgraded then do not display upgrade text.
             {
+                upgradeButton.SetActive(false);
                 speedUpgradeValue.text = "";
                 damageUpgradeValue.text = "";
                 rangeUpgradeValue.text = "";
@@ -778,15 +782,12 @@ public class GameScript : MonoBehaviour
         {
             playerStats.score += enemy.score;
             playerStats.money += enemy.money;
-            if (level == MAX_WAVES && activeWaves.Count == 0 && activeEnemies == 0)
-            {
-                gameState = GameState.WIN;
-                UpdateGameStatus();
-            }
         }
         else
         {
             playerStats.health -= enemy.GetDamage();
+            masterPineappleAnimator.ResetTrigger("Hurt");
+            masterPineappleAnimator.SetTrigger("Hurt");
             if (playerStats.health <= 0)
             {
                 playerStats.health = 0;
@@ -1007,13 +1008,13 @@ public class GameScript : MonoBehaviour
         {
             return;
         }
-        var money = selectedTile.tower.GetTowerStats().sellAmount;
+        var money = Mathf.FloorToInt(0.7f * selectedTile.tower.totalValue);
         playerStats.money += money;
         selectedTile.ClearTile();
         selectedTile.SelectTile(false);
         selectedTile = null;
         UpdateStatsText();
-        SetTowerStatsCardInfo();
+        UpdateTowerStatsCardInfo();
         boardHasChanged = true;
     }
 
@@ -1032,7 +1033,7 @@ public class GameScript : MonoBehaviour
         {
             playerStats.money -= cost;
             UpdateStatsText();
-            SetTowerStatsCardInfo();
+            UpdateTowerStatsCardInfo();
         }
 
     }
@@ -1055,12 +1056,17 @@ public class GameScript : MonoBehaviour
             Menu(!isPaused);
         }
         // Cheat Codes
-        /*
-        if (Input.GetKeyDown(KeyCode.C))
+
+        if (ENABLE_CHEAT_CODE && Input.GetKeyDown(KeyCode.C))
         {
             playerStats = new PlayerStats(999, 99999, 0);
         }
-        */
+
+        if (gameState == GameState.PLAYING && level == MAX_WAVES && activeWaves.Count == 0 && activeEnemies == 0)
+        {
+            gameState = GameState.WIN;
+            UpdateGameStatus();
+        }
         if (!isPaused)
         {
             if (Input.GetKeyDown(KeyCode.Tab))

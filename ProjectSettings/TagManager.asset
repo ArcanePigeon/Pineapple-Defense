@@ -50,6 +50,9 @@ TagManager:
   - name: Towers
     uniqueID: 3971693443
     locked: 0
+  - name: MasterPineapple
+    uniqueID: 322177991
+    locked: 0
   - name: UI
     uniqueID: 2002426149
     locked: 0

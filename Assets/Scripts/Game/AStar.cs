@@ -141,16 +141,6 @@ public static class AStar
             {
                 node.tile.spriteRenderer.color = Color.cyan;
             }
-            if (node.parent != null)
-            {
-                //node.tile.DebugArrow.SetActive(true);
-                //var rotation =  Mathf.Atan2(node.tile.transform.position.y - node.parent.tile.transform.position.y, node.tile.transform.position.x - node.parent.tile.transform.position.x)*Mathf.Rad2Deg + 135;
-                //node.tile.DebugArrow.transform.eulerAngles = new Vector3(0, 0, rotation);
-                //Debug.Log(node.G + " " + node.F + " " + node.H);
-                // node.tile.G.text += node.G;
-                //node.tile.F.text += node.F;
-                //node.tile.H.text += node.H;
-            }
         }
         foreach (Node node in closedList)
         {
@@ -165,10 +155,6 @@ public static class AStar
             else
             {
                 node.tile.spriteRenderer.color = Color.blue;
-                //Debug.Log(node.G + " " + node.F + " " + node.H);
-                //node.tile.G.text += node.G;
-                //node.tile.F.text += node.F;
-                //node.tile.H.text += node.H;
             }
         }
         foreach (Node node in finalPath)

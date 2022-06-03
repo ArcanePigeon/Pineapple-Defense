@@ -57,40 +57,40 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Scripts\Towers\Tower.cs" />
+    <Compile Include="Assets\Scripts\Towers\ThornTosserTower.cs" />
     <Compile Include="Assets\Scripts\Game\GameScript.cs" />
+    <Compile Include="Assets\Scripts\Towers\PinaColadaTower.cs" />
+    <Compile Include="Assets\Scripts\Enemies\SwarmEnemy.cs" />
+    <Compile Include="Assets\Scripts\Enemies\GroupEnemyBig.cs" />
     <Compile Include="Assets\Scripts\Projectiles\ExplosivePineappleProjectile.cs" />
+    <Compile Include="Assets\Scripts\Enemies\FastEnemy.cs" />
     <Compile Include="Assets\Scripts\Projectiles\Explosion.cs" />
+    <Compile Include="Assets\Scripts\Towers\SliceThrowerTower.cs" />
     <Compile Include="Assets\Scripts\Enemies\NormalEnemy.cs" />
+    <Compile Include="Assets\Scripts\Enemies\GroupEnemySmall.cs" />
     <Compile Include="Assets\Scripts\Projectiles\CollidableProjectile.cs" />
+    <Compile Include="Assets\Scripts\Towers\PineappleWallTower.cs" />
     <Compile Include="Assets\Scripts\Towers\PineappleCannonTower.cs" />
     <Compile Include="Assets\Scripts\Game\Timer.cs" />
+    <Compile Include="Assets\Scripts\Enemies\ImmuneEnemy.cs" />
     <Compile Include="Assets\Scripts\Projectiles\Projectile.cs" />
     <Compile Include="Assets\Scripts\Game\Tile.cs" />
+    <Compile Include="Assets\Scripts\Projectiles\LeafProjectile.cs" />
     <Compile Include="Assets\Scripts\Game\AStar.cs" />
     <Compile Include="Assets\Scripts\Enemies\Enemy.cs" />
+    <Compile Include="Assets\Scripts\Projectiles\SliceProjectile.cs" />
+    <Compile Include="Assets\Scripts\Projectiles\ThornProjectile.cs" />
+    <Compile Include="Assets\Scripts\Towers\AcidicJuicerTower.cs" />
+    <Compile Include="Assets\Scripts\Enemies\FlyingEnemy.cs" />
     <Compile Include="Assets\Scripts\Towers\TowerRadius.cs" />
+    <Compile Include="Assets\Scripts\Enemies\BossEnemy.cs" />
+    <Compile Include="Assets\Scripts\Towers\GatlinPineappleTower.cs" />
     <Compile Include="Assets\Scripts\Game\TickableObject.cs" />
     <Compile Include="Assets\Scripts\Enemies\CollidableEnemy.cs" />
+    <Compile Include="Assets\Scripts\Projectiles\IceProjectile.cs" />
     <Compile Include="Assets\Scripts\Game\WaveBox.cs" />
     <Compile Include="Assets\Scripts\Game\Node.cs" />
-    <Compile Include="Assets\Scripts\Towers\PinaColadaTower.cs" />
-    <Compile Include="Assets\Scripts\Projectiles\IceProjectile.cs" />
-    <Compile Include="Assets\Scripts\Towers\GatlinPineappleTower.cs" />
-    <Compile Include="Assets\Scripts\Projectiles\LeafProjectile.cs" />
-    <Compile Include="Assets\Scripts\Towers\AcidicJuicerTower.cs" />
-    <Compile Include="Assets\Scripts\Towers\SliceThrowerTower.cs" />
-    <Compile Include="Assets\Scripts\Projectiles\SliceProjectile.cs" />
-    <Compile Include="Assets\Scripts\Towers\ThornTosserTower.cs" />
-    <Compile Include="Assets\Scripts\Projectiles\ThornProjectile.cs" />
-    <Compile Include="Assets\Scripts\Towers\PineappleWallTower.cs" />
     <Compile Include="Assets\Scripts\Enemies\GroupEnemy.cs" />
-    <Compile Include="Assets\Scripts\Enemies\FastEnemy.cs" />
-    <Compile Include="Assets\Scripts\Enemies\GroupEnemyBig.cs" />
-    <Compile Include="Assets\Scripts\Enemies\ImmuneEnemy.cs" />
-    <Compile Include="Assets\Scripts\Enemies\BossEnemy.cs" />
-    <Compile Include="Assets\Scripts\Enemies\SwarmEnemy.cs" />
-    <Compile Include="Assets\Scripts\Enemies\FlyingEnemy.cs" />
-    <Compile Include="Assets\Scripts\Enemies\GroupEnemySmall.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />

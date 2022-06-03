@@ -25,5 +25,6 @@ public class PinaColadaTower : Tower
         projectileDamageReturn = new ProjectileDamageReturn(currentStats.damage, true, (float)currentStats.special);
         towerRadius.levelIndicator.text = "" + (level + 1);
         pivotSpeed = 600f;
+        upgradeTimer = new Timer(0, false);
     }
 }

@@ -10,9 +10,11 @@ public class NormalEnemy : Enemy
         this.main = main;
         this.enemy = enemy;
         this.damage = 1;
-        this.speed = 0.5f;
+        this.speed = 0.3f;
         this.currentSpeed = this.speed;
-        enemy.GetComponent<CollidableEnemy>().Init(this);
+        this.collidableEnemy = enemy.GetComponent<CollidableEnemy>();
+        collidableEnemy.Init(this);
+        this.iFrameTimer = new Timer(0.1f, true);
         this.type = EnemyType.NORMAL;
         this.slowDebuffTimer = new Timer(1, false);
         this.enemyStats = new EnemyStats(3, 10, 3, 2, 2, 2);

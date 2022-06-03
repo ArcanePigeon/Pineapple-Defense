@@ -29,16 +29,11 @@ public class GatlinPineappleTower : Tower
         leavesLeft = 0;
         timeBetweenLeavesTimer = new Timer(0.01f, false);
         pivotSpeed = 300f;
+        upgradeTimer = new Timer(0, false);
     }
     public override void Tick()
     {
-        TrackEnemies();
-        attackTimer.Tick();
-        if (attackTimer.Status())
-        {
-            attackTimer.ResetTimer();
-            Attack();
-        }
+        base.Tick();
         if (timeBetweenLeavesTimer.Status())
         {
             timeBetweenLeavesTimer.ResetTimer();

@@ -36,6 +36,7 @@ public abstract class Enemy : TickableObject
     public float currentSpeed;
     public int difficulty;
     public GameObject enemy;
+    public CollidableEnemy collidableEnemy;
     public EnemyType type;
     public Stack<Node> path;
     public Node startingNode;
@@ -46,6 +47,8 @@ public abstract class Enemy : TickableObject
     public bool isSlowed;
     public EnemyStats enemyStats;
     public bool isImmune;
+    public Color currentColor;
+    public Timer iFrameTimer;
     public virtual void Kill(bool killedByPlayer)
     {
         main.KillEnemy(this, killedByPlayer);
@@ -57,6 +60,8 @@ public abstract class Enemy : TickableObject
     public virtual void ApplyDamage(ProjectileDamageReturn projectileDamage)
     {
         health -= projectileDamage.damage;
+        iFrameTimer.ResetTimer();
+
         if (health <= 0)
         {
             Kill(true);
@@ -73,6 +78,10 @@ public abstract class Enemy : TickableObject
     {
         if (collision.CompareTag("Projectile"))
         {
+            if (iFrameTimer.Status())
+            {
+                return;
+            }
             var projectileDamage = main.CollideProjectile(collision.gameObject);
             ApplyDamage(projectileDamage);
         }
@@ -106,14 +115,28 @@ public abstract class Enemy : TickableObject
         }
         if (!isImmune && isSlowed)
         {
+            currentColor = new Color(0.240566f, 0.8757878f, 1, 0.509804f);
             slowDebuffTimer.Tick();
             if (slowDebuffTimer.Status())
             {
                 isSlowed = false;
                 currentSpeed = speed;
             }
+        }
+        if (iFrameTimer.Status())
+        {
+            iFrameTimer.Tick();
+            currentColor = new Color(0.754717f, 0.04965626f, 0.03203986f, 0.454902f);
+        }
+        else
+        {
+            if (!isSlowed)
+            {
+                currentColor = new Color(0, 0, 0, 0);
+            }
 
         }
+        collidableEnemy.spriteRenderer.color = currentColor;
         Move();
     }
     public virtual void Move()

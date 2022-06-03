@@ -25,14 +25,13 @@ public class SliceThrowerTower : Tower
         this.projectileDamageReturn = new ProjectileDamageReturn(currentStats.damage, false, (float)currentStats.special);
         towerRadius.levelIndicator.text = "" + (level + 1);
         pivotSpeed = 600f;
+        upgradeTimer = new Timer(0, false);
     }
 
     public override void Attack()
     {
         if (closestEnemy != null)
         {
-            //towerRadius.animator.ResetTrigger("Fire");
-            //towerRadius.animator.SetTrigger("Fire");
             main.SpawnProjctileFromPool(projectileType, towerRadius.projectileSpawn.position, towerRadius.pivot.rotation, projectileDamageReturn);
         }
     }

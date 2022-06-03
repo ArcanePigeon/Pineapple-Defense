@@ -26,5 +26,6 @@ public class PineappleCannonTower : Tower
         this.projectileDamageReturn = new ProjectileDamageReturn(currentStats.damage, false, (float)currentStats.special);
         towerRadius.levelIndicator.text = "" + (level + 1);
         pivotSpeed = 300f;
+        upgradeTimer = new Timer(0, false);
     }
 }

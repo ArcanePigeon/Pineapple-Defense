@@ -24,6 +24,7 @@ public class AcidicJuicerTower : Tower
         this.type = TowerType.ACIDIC_JUICER;
         this.projectileDamageReturn = new ProjectileDamageReturn(currentStats.damage, false, (float)currentStats.special);
         towerRadius.levelIndicator.text = "" + (level + 1);
+        upgradeTimer = new Timer(0, false);
     }
     public override void TrackEnemies()
     {

@@ -24,6 +24,7 @@ public class ThornTosserTower : Tower
         this.projectileType = ProjectileType.THORN;
         this.projectileDamageReturn = new ProjectileDamageReturn(currentStats.damage, false, (float)currentStats.special);
         towerRadius.levelIndicator.text = "" + (level + 1);
+        upgradeTimer = new Timer(0, false);
 
     }
     public override void TrackEnemies()
