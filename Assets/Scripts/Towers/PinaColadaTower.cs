@@ -27,4 +27,8 @@ public class PinaColadaTower : Tower
         pivotSpeed = 600f;
         upgradeTimer = new Timer(0, false);
     }
+    public override void PlayAttackSound()
+    {
+        SoundManager.Instance.PlaySound("IceSound");
+    }
 }

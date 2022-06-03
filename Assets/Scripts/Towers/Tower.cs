@@ -152,10 +152,15 @@ public abstract class Tower : TickableObject
     {
         if (closestEnemy != null)
         {
+            PlayAttackSound();
             towerRadius.animator.ResetTrigger("Fire");
             towerRadius.animator.SetTrigger("Fire");
             main.SpawnProjctileFromPool(projectileType, towerRadius.projectileSpawn.position, towerRadius.pivot.rotation, projectileDamageReturn);
         }
+    }
+    public virtual void PlayAttackSound()
+    {
+
     }
     public override void Tick()
     {

@@ -34,20 +34,18 @@ public class GatlinPineappleTower : Tower
     public override void Tick()
     {
         base.Tick();
+        timeBetweenLeavesTimer.Tick();
         if (timeBetweenLeavesTimer.Status())
         {
             timeBetweenLeavesTimer.ResetTimer();
             if (leavesLeft > 0)
             {
+                PlayAttackSound();
                 Quaternion projectileSpawnRotation = towerRadius.pivot.rotation;
                 projectileSpawnRotation = Quaternion.Euler(projectileSpawnRotation.eulerAngles + new Vector3(0, 0, (Random.value - 0.5f) * 60f));
                 main.SpawnProjctileFromPool(projectileType, towerRadius.projectileSpawn.position, projectileSpawnRotation, projectileDamageReturn);
                 leavesLeft -= 1;
             }
-        }
-        else
-        {
-            timeBetweenLeavesTimer.Tick();
         }
     }
 
@@ -59,5 +57,9 @@ public class GatlinPineappleTower : Tower
             towerRadius.animator.SetTrigger("Fire");
             leavesLeft += (int)currentStats.special;
         }
+    }
+    public override void PlayAttackSound()
+    {
+        SoundManager.Instance.PlaySound("ThornSound");
     }
 }

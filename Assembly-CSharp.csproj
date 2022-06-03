@@ -91,6 +91,8 @@
     <Compile Include="Assets\Scripts\Game\WaveBox.cs" />
     <Compile Include="Assets\Scripts\Game\Node.cs" />
     <Compile Include="Assets\Scripts\Enemies\GroupEnemy.cs" />
+    <Compile Include="Assets\Scripts\Game\SoundManager.cs" />
+    <Compile Include="Assets\Scripts\Game\Sound.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />

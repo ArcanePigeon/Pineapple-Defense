@@ -43,6 +43,7 @@ public enum GameState
 }
 public class GameScript : MonoBehaviour
 {
+    public static GameScript Instance;
     // Game state
     private bool isPaused = false;
     private int selectedTowerInShop = -1;
@@ -217,6 +218,18 @@ public class GameScript : MonoBehaviour
         new TowerStats(0,    0,     0,   0,     0,  false, 0f)
     };
 
+    private void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
 
     void Start()
     {
@@ -447,6 +460,7 @@ public class GameScript : MonoBehaviour
             return;
         }
         playerStats.money -= cost;
+        SoundManager.Instance.PlaySound("CoinsSound");
         UpdateStatsText();
         Tower tower;
         switch ((TowerType)selectedTowerInShop)
@@ -565,6 +579,7 @@ public class GameScript : MonoBehaviour
             shopButtons[selectedTowerInShop].SetBool("Active", false);
             selectedTowerInShop = -1;
         }
+        SoundManager.Instance.PlaySound("ClickSound");
         DeselectTile();
         tile.SelectTile(true);
         selectedTile = tile;
@@ -788,6 +803,7 @@ public class GameScript : MonoBehaviour
             playerStats.health -= enemy.GetDamage();
             masterPineappleAnimator.ResetTrigger("Hurt");
             masterPineappleAnimator.SetTrigger("Hurt");
+            SoundManager.Instance.PlaySound("PineappleHitSound");
             if (playerStats.health <= 0)
             {
                 playerStats.health = 0;
@@ -1009,6 +1025,7 @@ public class GameScript : MonoBehaviour
             return;
         }
         var money = Mathf.FloorToInt(0.7f * selectedTile.tower.totalValue);
+        SoundManager.Instance.PlaySound("CoinsSound");
         playerStats.money += money;
         selectedTile.ClearTile();
         selectedTile.SelectTile(false);
@@ -1032,6 +1049,7 @@ public class GameScript : MonoBehaviour
         if (selectedTile.tower.Upgrade())
         {
             playerStats.money -= cost;
+            SoundManager.Instance.PlaySound("CoinsSound");
             UpdateStatsText();
             UpdateTowerStatsCardInfo();
         }

@@ -46,6 +46,7 @@ public class ThornTosserTower : Tower
         }
         if (targets.Count != 0)
         {
+            PlayAttackSound();
             towerRadius.animator.ResetTrigger("Fire");
             towerRadius.animator.SetTrigger("Fire");
             for (int i = 0; i < 8; i++)
@@ -57,5 +58,9 @@ public class ThornTosserTower : Tower
                 main.SpawnProjctileFromPool(projectileType, projectileSpawnPosition, projectileSpawnRotation, projectileDamageReturn);
             }
         }
+    }
+    public override void PlayAttackSound()
+    {
+        SoundManager.Instance.PlaySound("ThornSound");
     }
 }

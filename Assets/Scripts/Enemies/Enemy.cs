@@ -61,7 +61,7 @@ public abstract class Enemy : TickableObject
     {
         health -= projectileDamage.damage;
         iFrameTimer.ResetTimer();
-
+        SoundManager.Instance.PlaySound("EnemyHitSound");
         if (health <= 0)
         {
             Kill(true);

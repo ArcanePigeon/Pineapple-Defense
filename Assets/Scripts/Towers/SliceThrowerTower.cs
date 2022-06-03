@@ -35,4 +35,8 @@ public class SliceThrowerTower : Tower
             main.SpawnProjctileFromPool(projectileType, towerRadius.projectileSpawn.position, towerRadius.pivot.rotation, projectileDamageReturn);
         }
     }
+    public override void PlayAttackSound()
+    {
+        SoundManager.Instance.PlaySound("SliceSound");
+    }
 }

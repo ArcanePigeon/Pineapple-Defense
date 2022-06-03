@@ -91,6 +91,7 @@ public class Tile : MonoBehaviour
         {
             return;
         }
+        
         if (Input.GetMouseButtonDown(0))
         {
             main.InteractTile(this);

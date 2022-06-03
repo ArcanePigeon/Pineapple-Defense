@@ -19,6 +19,7 @@ public class Timer
     {
         if (currentTime <= 0)
         {
+            currentTime = 0;
             isTimerUp = true;
         }
         else

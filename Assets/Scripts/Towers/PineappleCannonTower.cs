@@ -28,4 +28,8 @@ public class PineappleCannonTower : Tower
         pivotSpeed = 300f;
         upgradeTimer = new Timer(0, false);
     }
+    public override void PlayAttackSound()
+    {
+        SoundManager.Instance.PlaySound("CannonSound");
+    }
 }
